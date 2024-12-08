@@ -101,15 +101,16 @@
 
                 try {
                     // Send request to OpenAI API
-                    const response = await fetch('https://api.openai.com/v1/completions', {
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
                         method: 'POST',
                         headers: {
-                            'Authorization': 'Bearer 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',
+                            'Authorization': 'Bearer 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',  // Use your own API key
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            model: 'gpt-3.5-turbo',  // You can change this to a different model like "gpt-4" if available
+                            model: 'gpt-3.5-turbo',  // Or use a different model if available
                             messages: [
+                                { role: 'system', content: 'You are a helpful assistant.' },
                                 { role: 'user', content: userMessage }
                             ]
                         })
@@ -117,19 +118,25 @@
 
                     const data = await response.json();
 
-                    // Get bot response
-                    const botResponse = data.choices[0].message.content;
+                    // Check if the response has the expected structure
+                    if (data.choices && data.choices[0] && data.choices[0].message) {
+                        const botResponse = data.choices[0].message.content;
 
-                    // Append bot response
-                    const botMessageElement = document.createElement('div');
-                    botMessageElement.classList.add('message', 'bot-message');
-                    botMessageElement.textContent = botResponse;
-                    chatBox.appendChild(botMessageElement);
+                        // Append bot response
+                        const botMessageElement = document.createElement('div');
+                        botMessageElement.classList.add('message', 'bot-message');
+                        botMessageElement.textContent = botResponse;
+                        chatBox.appendChild(botMessageElement);
 
-                    // Scroll to the bottom
-                    chatBox.scrollTop = chatBox.scrollHeight;
+                        // Scroll to the bottom
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    } else {
+                        console.error('Unexpected API response:', data);
+                        alert('Error: Unable to get a valid response from the API.');
+                    }
                 } catch (error) {
                     console.error('Error fetching bot response:', error);
+                    alert('An error occurred while fetching the response from the server.');
                 }
             }
         }
